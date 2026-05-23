@@ -1,0 +1,328 @@
+{
+  "config": {
+    "id": "config",
+    "phone": "(941) 526-5425",
+    "phoneRaw": "+19415265425",
+    "email": "sales@skywayaluminum.com",
+    "license": "CGC1538497",
+    "hoursTopbar": "Mon–Sat: 7am – 6pm",
+    "hoursWeekday": "Mon–Fri: 8AM – 6PM",
+    "hoursSaturday": "Sat: 9AM – 2PM",
+    "heroImage": "",
+    "featureImage": ""
+  },
+
+  "footer": {
+    "id": "footer",
+    "tagline": "Building with precision and purpose — Florida.",
+    "instagram": "https://www.instagram.com/alumenoutdoors",
+    "facebook": "https://www.facebook.com/alumenoutdoors"
+  },
+
+  "faixa": [],
+
+  "pages": [
+    {
+      "id": "page_home_hero",
+      "sectionId": "home-hero",
+      "eyebrow": "Florida's Premier Enclosure Specialists",
+      "heading": "Custom Pool Cages &\nAluminum Enclosures",
+      "sub": "Built with precision. Designed to elevate your outdoor living."
+    },
+    {
+      "id": "page_home_process",
+      "sectionId": "home-process",
+      "heading": "Built on Process.\nDelivered with Precision.",
+      "desc": "Every project follows a structured approach — from the first site visit to the final inspection. No shortcuts, no surprises.",
+      "steps": [
+        {
+          "number": "1",
+          "icon": "person_search",
+          "title": "Private Consultation & Site Evaluation",
+          "description": "Every project begins with a detailed on-site consultation. We carefully assess your space, understand your goals, and evaluate structural and architectural considerations to ensure the final result integrates seamlessly with your home.\n\nWe don't offer one-size-fits-all solutions — we design with intention."
+        },
+        {
+          "number": "2",
+          "icon": "architecture",
+          "title": "Custom Design & Engineering",
+          "description": "Once measurements are finalized, we develop a tailored enclosure plan engineered for Florida's environmental conditions. Our focus is on structural integrity, clean lines, proportional balance, and long-term durability. Every detail — from layout to framing alignment — is considered before installation begins.\n\nPermits and compliance requirements are handled with precision to ensure a smooth and professional process."
+        },
+        {
+          "number": "3",
+          "icon": "inventory_2",
+          "title": "Material Selection & Preparation",
+          "description": "We use premium-grade aluminum and high-quality screening materials selected for strength, longevity, and refined appearance. Before installation, all materials are prepared and organized to ensure efficiency and craftsmanship on site.\n\nPrecision begins long before the first anchor is set."
+        },
+        {
+          "number": "4",
+          "icon": "engineering",
+          "title": "Professional Installation",
+          "description": "Our installation process is methodical and detail-driven. We prioritize structural accuracy, clean framing alignment, and flawless screen tensioning. Every connection point, panel line, and finishing detail is inspected for consistency and strength.\n\nWe maintain organized job sites and treat your property with respect throughout the build."
+        },
+        {
+          "number": "5",
+          "icon": "fact_check",
+          "title": "Final Inspection & Client Walkthrough",
+          "description": "Upon completion, we conduct a full structural and aesthetic inspection to ensure the enclosure meets our standards.\n\nWe then walk the project with you, reviewing the details and answering any questions. Our goal is simple: deliver a finished product that exceeds expectations — not just meets them."
+        },
+        {
+          "number": "6",
+          "icon": "verified_user",
+          "title": "Structural Validation",
+          "description": "Every project is finalized with internal quality control protocols and detailed verification of structural and finishing standards.\n\nWe document specifications, materials, and installation details to ensure consistency, traceability, and long-term performance.\n\nOur process doesn't end with completion — it is validated, recorded, and aligned with our standards of execution."
+        }
+      ]
+    },
+    {
+      "id": "page_about_team",
+      "sectionId": "about-team",
+      "description": "Our team is composed of skilled professionals dedicated to precision and quality. We work with a structured approach to deliver refined, reliable results. Every project is handled with attention to detail and clear communication. Our goal is to provide a seamless experience and exceptional craftsmanship."
+    },
+    {
+      "id": "page_about_values",
+      "sectionId": "about-values",
+      "intro": "Together, their partnership creates a balanced system:",
+      "pills": [
+        "Technical precision in the field",
+        "Professional structure in communication",
+        "Disciplined project execution",
+        "Refined client experience"
+      ],
+      "image": "",
+      "bullets": [
+        "We are not volume-driven.",
+        "We do not compete on price.",
+        "We compete on quality, consistency, and long-term performance."
+      ],
+      "statement": [
+        "Every enclosure we build is designed to complement your home, withstand Florida's conditions, and deliver lasting value. Our work is guided by intention — from engineering to final inspection.",
+        "At Alumen Outdoors Structure, luxury is not defined by excess. It is defined by discipline, structure, and attention to detail."
+      ]
+    },
+    {
+      "id": "page_about_story",
+      "sectionId": "about-story",
+      "imageLeft": "",
+      "imageRight": "",
+      "paragraphs": [
+        "Alumen Outdoors Structure was founded on a simple principle: premium structures require premium standards. <strong>We are a high-end aluminum contractor specializing in custom pool cages, lanai extensions, and architectural enclosures designed to enhance both the strength and sophistication of your outdoor space.</strong> Every project we undertake reflects precision, structural discipline, and refined execution.",
+        "<strong>Our company is led by partners Andre Queiroz and Jaspher Santos</strong>, whose complementary roles ensure that every client receives both technical excellence and a seamless professional experience.",
+        "<strong>Andre Queiroz leads field operations and installation.</strong> With a hands-on approach and a relentless focus on craftsmanship, he oversees structural integrity, alignment, finishing detail, and quality control on every build. His commitment to precision ensures that every enclosure meets strict standards of durability and aesthetic balance.",
+        "<strong>Jaspher Santos leads client relations and project coordination.</strong> From the initial consultation through final delivery, he ensures clear communication, transparency, and a structured process. His focus is to provide a smooth, organized experience while maintaining the elevated service standards expected from a premium contractor."
+      ]
+    }
+  ],
+
+  "services": [
+    {
+      "id": "svc_1",
+      "slug": "custom-pool-cage-installation",
+      "title": "Custom Pool Cage Installation",
+      "subtitle": "Engineered aluminum pool cages built to complement your home and withstand Florida's toughest conditions.",
+      "description": "<p>We design and install custom pool cages that match your home's architecture, local building codes, and your personal preferences. Every structure is engineered from the ground up — no cookie-cutter solutions.</p><p>Our pool cages are built with commercial-grade aluminum and high-tensile screen panels rated for hurricane-level wind loads. From simple rectangular enclosures to complex hip-roof designs, we handle every configuration with the same level of precision.</p><p>Each installation includes a full engineering plan, permit coordination, and a final walkthrough to ensure the structure meets our standards before we leave the job site.</p>",
+      "features": [
+        "Custom-engineered structural drawings for every project",
+        "Commercial-grade 6063-T5 aluminum framing",
+        "Hurricane-rated screen panels (up to 130 mph)",
+        "Full permit coordination and code compliance",
+        "Available in standard white, bronze, or custom powder-coat finish",
+        "Multiple roof styles: flat, hip, mansard, and shed",
+        "Optional screen doors with self-closing hardware",
+        "Structural guarantee on all welds and connections"
+      ],
+      "heroImage": "",
+      "gallery": [],
+      "order": 1
+    },
+    {
+      "id": "svc_2",
+      "slug": "extended-lanai-construction",
+      "title": "Extended Lanai Construction",
+      "subtitle": "Expand your existing lanai or build a new one — more usable space, fully screened and structurally sound.",
+      "description": "<p>A well-built lanai extends your living space outdoors and adds lasting value to your home. We build extended lanais that integrate seamlessly with your existing structure, matching the roofline, materials, and finish of your current enclosure.</p><p>Whether you're adding 10 feet to an existing screened area or building a full outdoor living room from scratch, our team handles the engineering, permitting, and construction from start to finish.</p><p>All extensions are tied directly into the existing foundation or slab, ensuring structural continuity that satisfies Florida's building codes and withstands the region's storm seasons.</p>",
+      "features": [
+        "Seamless integration with existing structure",
+        "Concrete slab extension or deck attachment options",
+        "Engineered tie-ins for structural continuity",
+        "Matching aluminum profiles and powder-coat finishes",
+        "Screen selection: standard, solar, pet-resistant, privacy",
+        "Optional ceiling fans and lighting rough-in",
+        "Permit-ready drawings included",
+        "Available in any size — minimum 8 ft extension"
+      ],
+      "heroImage": "",
+      "gallery": [],
+      "order": 2
+    },
+    {
+      "id": "svc_3",
+      "slug": "front-back-porch-enclosures",
+      "title": "Front & Back Porch Enclosures",
+      "subtitle": "Transform your open porch into a comfortable, bug-free outdoor living space.",
+      "description": "<p>Porch enclosures are one of the most cost-effective ways to improve your quality of life in Florida. We screen in front and back porches of any size — from small entry porches to large wraparound designs.</p><p>Our enclosures use the same premium materials as our pool cage installations: structural aluminum framing, high-quality screen panels, and weather-sealed connections that prevent water infiltration and drafts.</p><p>Each project starts with a site visit to assess your existing porch structure, roof attachment points, and local code requirements. We deliver a complete enclosure that feels like part of the original home.</p>",
+      "features": [
+        "Structural assessment of existing porch included",
+        "Roof-to-foundation attachment for maximum stability",
+        "Multiple door configurations: sliding, swing, double",
+        "Screen options: fiberglass, aluminum, pet-grade",
+        "Matches existing fascia and trim materials",
+        "Available with or without knee wall",
+        "Fully weatherproofed at all penetrations",
+        "Interior ceiling screen option available"
+      ],
+      "heroImage": "",
+      "gallery": [],
+      "order": 3
+    },
+    {
+      "id": "svc_4",
+      "slug": "full-pool-cage-lanai-rescreening",
+      "title": "Full Pool Cage & Lanai Rescreening",
+      "subtitle": "Complete rescreening of your existing enclosure — new screens, same structure.",
+      "description": "<p>After years of Florida sun, storms, and wear, pool cage screens degrade and tear. A full rescreening is the most efficient way to restore your enclosure to like-new condition without replacing the aluminum frame.</p><p>We remove all existing screen panels, inspect every aluminum member and connection for damage or corrosion, and install fresh screen throughout. Any damaged frame sections are repaired or replaced before the new screen goes in.</p><p>We stock the most common screen types in quantity, so most rescreening projects are completed in a single day without disrupting your schedule.</p>",
+      "features": [
+        "Complete removal and replacement of all screen panels",
+        "Frame inspection with corrosion and damage report",
+        "Structural repairs included where needed",
+        "Choice of screen type: standard, solar, pet-resistant",
+        "Spline and bead installation with UV-resistant materials",
+        "All debris removed and site cleaned at completion",
+        "Most projects completed in one day",
+        "10-year workmanship warranty on screen installation"
+      ],
+      "heroImage": "",
+      "gallery": [],
+      "order": 4
+    },
+    {
+      "id": "svc_5",
+      "slug": "pool-cage-painting-restoration",
+      "title": "Pool Cage Painting & Restoration",
+      "subtitle": "Restore the look and integrity of your aluminum enclosure without full replacement.",
+      "description": "<p>Oxidation, chalking, and fading are inevitable for aluminum structures exposed to Florida's climate. Our painting and restoration service addresses both cosmetic and structural deterioration, giving your existing enclosure a fresh start.</p><p>We pressure-wash the entire structure, remove all oxidation and loose paint, repair any damaged welds or connections, and apply a fresh powder-coat or high-bond paint finish designed for exterior aluminum in humid environments.</p><p>The result looks and performs like a new structure — at a fraction of the cost of full replacement.</p>",
+      "features": [
+        "Full pressure wash and surface preparation",
+        "Chemical oxidation removal on all aluminum surfaces",
+        "Weld repairs and structural touchups included",
+        "High-bond aluminum-rated paint or powder-coat finish",
+        "Color matching to original or new color of your choice",
+        "UV-resistant topcoat for long-term durability",
+        "All masking and cleanup included",
+        "5-year finish warranty"
+      ],
+      "heroImage": "",
+      "gallery": [],
+      "order": 5
+    },
+    {
+      "id": "svc_6",
+      "slug": "screen-repair-individual-panels",
+      "title": "Screen Repair (Individual Panels)",
+      "subtitle": "Fast, precise replacement of torn or damaged screen panels — no full rescreening required.",
+      "description": "<p>Not every tear requires a full rescreening. For isolated damage — a single panel torn by a branch, a pet, or storm debris — we offer individual panel replacement at a fraction of the cost of a full job.</p><p>Our technicians carry a full inventory of common screen types and spline sizes on every truck. In most cases, a single-panel repair is completed on the same day you call.</p><p>We match the existing screen type, color, and tension as closely as possible so the repair blends seamlessly with the rest of your enclosure.</p>",
+      "features": [
+        "Same-day service available in most service areas",
+        "Inventory of all common screen types on every truck",
+        "Precise screen matching by type, weight, and color",
+        "Proper spline seating and tension for long life",
+        "Minimum 1-panel, no job too small",
+        "Frame bead inspection and replacement as needed",
+        "No contract or minimum spend required",
+        "Satisfaction guaranteed on every panel"
+      ],
+      "heroImage": "",
+      "gallery": [],
+      "order": 6
+    }
+  ],
+
+  "projects": [
+    {
+      "id": "prj_1",
+      "title": "Lakefront Pool Cage — 2,400 sq ft",
+      "category": "Pool Cage",
+      "location": "Sarasota, FL",
+      "description": "Full custom pool cage installation on a lakefront property. Hip-roof design with panoramic screen panels to maximize the lake view. Bronze finish to match the home exterior.",
+      "coverImage": "",
+      "gallery": [],
+      "order": 1
+    },
+    {
+      "id": "prj_2",
+      "title": "Extended Lanai — Outdoor Kitchen Integration",
+      "category": "Lanai",
+      "location": "Bradenton, FL",
+      "description": "18-foot lanai extension to accommodate a full outdoor kitchen build-out. Reinforced roof structure with electrical rough-in for ceiling fans and pendant lighting.",
+      "coverImage": "",
+      "gallery": [],
+      "order": 2
+    },
+    {
+      "id": "prj_3",
+      "title": "Wraparound Porch Enclosure",
+      "category": "Porch",
+      "location": "Venice, FL",
+      "description": "Full-perimeter porch enclosure on a historic craftsman-style home. Custom knee wall and matching trim profile to preserve the original architectural character.",
+      "coverImage": "",
+      "gallery": [],
+      "order": 3
+    },
+    {
+      "id": "prj_4",
+      "title": "Full Rescreening After Hurricane",
+      "category": "Rescreening",
+      "location": "North Port, FL",
+      "description": "Complete rescreening of a 1,800 sq ft pool cage following hurricane damage. Frame inspection revealed two cross members requiring replacement. Completed in a single day.",
+      "coverImage": "",
+      "gallery": [],
+      "order": 4
+    },
+    {
+      "id": "prj_5",
+      "title": "Pool Cage Restoration & Repaint",
+      "category": "Restoration",
+      "location": "Tampa, FL",
+      "description": "Full oxidation removal and fresh powder-coat finish on a 15-year-old pool cage. Structure restored to like-new appearance with 5-year finish warranty.",
+      "coverImage": "",
+      "gallery": [],
+      "order": 5
+    },
+    {
+      "id": "prj_6",
+      "title": "New Construction Pool Cage",
+      "category": "Pool Cage",
+      "location": "Sarasota, FL",
+      "description": "New-construction pool cage for a custom-built waterfront home. Coordinated directly with the general contractor for slab integration during the build phase.",
+      "coverImage": "",
+      "gallery": [],
+      "order": 6
+    }
+  ],
+
+  "team": [
+    {
+      "id": "team_1",
+      "name": "Carlos Mendes",
+      "role": "Founder & Project Director",
+      "bio": "Over 18 years in structural aluminum. Carlos oversees every major project from estimation to final inspection.",
+      "photo": "",
+      "order": 1
+    },
+    {
+      "id": "team_2",
+      "name": "Rafael Sousa",
+      "role": "Lead Installer",
+      "bio": "Certified structural installer with 12 years of field experience across Sarasota and Manatee Counties.",
+      "photo": "",
+      "order": 2
+    },
+    {
+      "id": "team_3",
+      "name": "Diego Alves",
+      "role": "Estimator & Site Inspector",
+      "bio": "Handles all site visits, scope assessments, and detailed estimates. Diego ensures every quote reflects real-world conditions.",
+      "photo": "",
+      "order": 3
+    }
+  ]
+}

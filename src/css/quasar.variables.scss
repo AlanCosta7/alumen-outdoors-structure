@@ -1,0 +1,49 @@
+// ─── Brand palette ───────────────────────────────────────────────────────────
+// Extraída dos protótipos PDF e do SVG do logo
+$brand-dark   : #353435;   // charcoal — fundo escuro, nav, hero
+$brand-white  : #fbfbfa;   // off-white — texto sobre escuro, bg principal
+$brand-silver : #aea497;   // prata — texto secundário, bordas
+$brand-green  : #00e676;   // neon green — bloco accent (About), CTAs
+$brand-taupe  : #c6b89e;   // taupe — labels de contato
+$brand-dark-2 : #1a1a1a;   // escuro alternativo para seções
+
+// ─── Quasar color variables ───────────────────────────────────────────────────
+$primary   : $brand-dark;
+$secondary : $brand-silver;
+$accent    : $brand-green;
+
+$dark      : $brand-dark-2;
+$dark-page : #111111;
+
+$positive  : #21ba45;
+$negative  : #c10015;
+$info      : #31ccec;
+$warning   : #f2c037;
+
+// ─── Typography ──────────────────────────────────────────────────────────────
+$font-family-heading : 'Inter', sans-serif;
+$font-family-body    : 'Inter', sans-serif;
+
+// ─── Spacing scale ───────────────────────────────────────────────────────────
+$section-padding-y : 80px;
+$section-padding-y-sm: 48px;
+
+// ─── Layout ──────────────────────────────────────────────────────────────────
+$max-content-width : 1000px;
+$header-height     : 72px;
+$topbar-height     : 40px;
+
+// ─── Admin design tokens ─────────────────────────────────────────────────────
+$adm-bg          : #0f0f0f;
+$adm-surface     : #1c1c1c;
+$adm-surface-2   : #252525;
+$adm-surface-3   : #2e2e2e;
+$adm-border      : rgba(255,255,255,0.09);
+$adm-border-hi   : rgba(255,255,255,0.18);
+$adm-text        : #f0f0f0;
+$adm-text-2      : #b4b4b4;
+$adm-text-3      : #717171;
+$adm-accent      : #00e676;
+$adm-accent-dim  : rgba(#00e676, 0.10);
+$adm-negative    : #f44336;
+$adm-warning     : #f2c037;

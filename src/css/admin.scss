@@ -1,0 +1,425 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// ADMIN DESIGN SYSTEM — Alumen Outdoors Structure
+// Tokens e utilitários compartilhados por todas as páginas admin.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Tokens are defined in quasar.variables.scss (auto-injected into all scoped styles)
+
+// ── Page header ─────────────────────────────────────────────────────────────
+.adm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  &__left { flex: 1; min-width: 0; }
+
+  &__overline {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: $adm-accent;
+    margin: 0 0 4px;
+    font-family: $font-family-body;
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 2px;
+    font-family: $font-family-body;
+    line-height: 1.2;
+  }
+
+  &__desc {
+    font-size: 13px;
+    font-weight: 400;
+    color: #555;
+    margin: 0;
+    font-family: $font-family-body;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 4px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Card ────────────────────────────────────────────────────────────────────
+.adm-card {
+  background: $adm-surface;
+  border: 1px solid $adm-border;
+  border-radius: 6px;
+  padding: 20px 24px;
+  transition: border-color 0.2s;
+
+  &:hover { border-color: $adm-border-hi; }
+
+  &--flat { border: none; background: transparent; padding: 0; }
+  &--flush { padding: 0; }
+  &--interactive { cursor: pointer; }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: $adm-text-3;
+    margin: 0 0 16px;
+    font-family: $font-family-body;
+  }
+
+  &__divider {
+    height: 1px;
+    background: $adm-border;
+    margin: 16px -24px;
+  }
+}
+
+// ── Section label (inside a card) ────────────────────────────────────────────
+.adm-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: $adm-text-3;
+  margin: 0 0 12px;
+  font-family: $font-family-body;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+// ── Table ────────────────────────────────────────────────────────────────────
+.adm-table {
+  background: $adm-surface !important;
+  border: 1px solid $adm-border !important;
+  border-radius: 6px;
+
+  :deep(thead th) {
+    background: $adm-surface-2 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $adm-text-3 !important;
+    border-bottom: 1px solid $adm-border !important;
+    padding: 12px 16px !important;
+  }
+
+  :deep(tbody td) {
+    border-bottom: 1px solid $adm-border !important;
+    padding: 12px 16px !important;
+    color: $adm-text !important;
+  }
+
+  :deep(tbody tr) {
+    transition: background 0.15s;
+    &:hover { background: $adm-surface-2 !important; }
+  }
+
+  :deep(.q-table__bottom) {
+    border-top: 1px solid $adm-border !important;
+    color: $adm-text-2 !important;
+  }
+
+  // Hide row actions until hover
+  :deep(tbody tr .row-actions) { opacity: 0; transition: opacity 0.15s; }
+  :deep(tbody tr:hover .row-actions) { opacity: 1; }
+}
+
+// ── Dialog ───────────────────────────────────────────────────────────────────
+.adm-dialog {
+  background: $adm-surface-3 !important;
+  color: $adm-text;
+  border: 1px solid $adm-border-hi;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 56px;
+    border-bottom: 1px solid $adm-border;
+    background: rgba($adm-surface-2, 0.8);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+
+  &__bar-icon {
+    color: $adm-accent;
+    font-size: 18px;
+  }
+
+  &__bar-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $adm-text;
+    flex: 1;
+    font-family: $font-family-body;
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb { background: $adm-border-hi; border-radius: 2px; }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid $adm-border;
+    background: rgba($adm-surface-2, 0.8);
+    flex-shrink: 0;
+  }
+}
+
+// ── Image preview ─────────────────────────────────────────────────────────
+.adm-img-preview {
+  position: relative;
+  margin-top: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: $adm-surface-2;
+  border: 1px solid $adm-border;
+
+  &__img {
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    background: rgba(0,0,0,0.7);
+    color: $adm-text-2;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: $font-family-body;
+  }
+
+  &__clear {
+    position: absolute !important;
+    top: 4px;
+    right: 4px;
+    background: rgba(0,0,0,0.65) !important;
+    color: #fff !important;
+  }
+}
+
+.adm-img-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: $adm-surface-2;
+  border: 1px dashed $adm-border;
+  border-radius: 4px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: $adm-text-3;
+  font-family: $font-family-body;
+}
+
+// ── Array field ─────────────────────────────────────────────────────────────
+.adm-array {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: $adm-text-3;
+    font-family: $font-family-body;
+  }
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding: 8px 12px;
+    background: $adm-surface-2;
+    border: 1px solid $adm-border;
+    border-radius: 4px;
+    transition: border-color 0.15s;
+
+    &:hover { border-color: $adm-border-hi; }
+
+    &-num {
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: $adm-border;
+      color: $adm-text-3;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 8px;
+      font-family: $font-family-body;
+    }
+  }
+
+  &__add {
+    margin-top: 6px;
+  }
+}
+
+// ── Empty state ──────────────────────────────────────────────────────────────
+.adm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  background: $adm-surface;
+  border: 1px solid $adm-border;
+  border-radius: 6px;
+  text-align: center;
+
+  &__icon {
+    color: $adm-text-3;
+    margin-bottom: 16px;
+    opacity: 0.6;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $adm-text;
+    margin: 0 0 6px;
+    font-family: $font-family-body;
+  }
+
+  &__desc {
+    font-size: 13px;
+    color: $adm-text-2;
+    margin: 0 0 24px;
+    font-family: $font-family-body;
+    max-width: 320px;
+    line-height: 1.6;
+  }
+}
+
+// ── Status chip ──────────────────────────────────────────────────────────────
+.adm-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-family: $font-family-body;
+
+  &--ok {
+    background: rgba(#00e676, 0.12);
+    color: #00e676;
+  }
+
+  &--warn {
+    background: rgba(#f2c037, 0.12);
+    color: $adm-warning;
+  }
+
+  &--error {
+    background: rgba(#f44336, 0.12);
+    color: $adm-negative;
+  }
+}
+
+// ── Tag/chip list ────────────────────────────────────────────────────────────
+.adm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 10px;
+  background: $adm-surface-2;
+  border: 1px solid $adm-border;
+  border-radius: 3px;
+  font-size: 12px;
+  color: $adm-text-2;
+  font-family: $font-family-body;
+
+  &__remove {
+    cursor: pointer;
+    color: $adm-text-3;
+    transition: color 0.15s;
+    line-height: 1;
+    &:hover { color: $adm-negative; }
+  }
+}
+
+.adm-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+// ── Utility ──────────────────────────────────────────────────────────────────
+.adm-divider {
+  height: 1px;
+  background: $adm-border;
+  margin: 20px 0;
+}
+
+.adm-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.adm-text-primary   { color: $adm-text   !important; }
+.adm-text-secondary { color: $adm-text-2 !important; }
+.adm-text-hint      { color: $adm-text-3 !important; }
+.adm-text-accent    { color: $adm-accent !important; }
+
+// ── Quasar input overrides (admin context) ───────────────────────────────────
+.adm-dialog,
+.adm-card,
+[class^="adm-"] {
+  // Filled dark inputs: label contrast fix
+  :deep(.q-field--dark .q-field__label) { color: $adm-text-2 !important; }
+  :deep(.q-field--dark.q-field--highlighted .q-field__label) { color: $adm-accent !important; }
+  :deep(.q-field--dark .q-field__native) { color: $adm-text !important; }
+  :deep(.q-field--dark .q-field__bottom) { color: $adm-text-3 !important; }
+  :deep(.q-field--dark .q-field__control) { background: $adm-surface-2 !important; }
+  :deep(.q-field--dark.q-field--highlighted .q-field__control:before) {
+    border-bottom-color: $adm-accent !important;
+  }
+}
