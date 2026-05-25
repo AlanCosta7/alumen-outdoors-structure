@@ -33,6 +33,78 @@ module.exports = configure(function (/* ctx */) {
           'composables': path.resolve(__dirname, 'src/composables'),
         }
 
+        viteConf.plugins = viteConf.plugins || []
+
+        // ── font-display: swap para fontes de ícones do Quasar ────────────────
+        // @quasar/extras bundla Material Icons com `font-display: block`, que
+        // bloqueia a renderização de texto por até 3 s (Lighthouse avisa).
+        // Este plugin substitui pelo valor `swap` em todo CSS processado pelo
+        // Vite, sem alterar node_modules.
+        viteConf.plugins.push({
+          name: 'font-display-swap',
+          enforce: 'pre',
+          transform(code, id) {
+            if (!id.match(/\.css(\?.*)?$/) || !code.includes('font-display')) return null
+            const updated = code.replace(/font-display\s*:\s*block/g, 'font-display: swap')
+            return updated !== code ? { code: updated, map: null } : null
+          },
+        })
+
+        // ── Strip admin-only assets from the public HTML document ─────────────
+        // The `admin` chunk and its CSS are only needed by /admin routes.
+        // Removing them from <head> saves ~124 KB of blocking resources for
+        // public visitors (admin.js + admin.css).
+        viteConf.plugins.push({
+          name: 'strip-admin-assets',
+          transformIndexHtml(html) {
+            // Remove <link rel="stylesheet"> and <link rel="modulepreload">
+            // for any chunk whose filename starts with "admin"
+            return html
+              .replace(/<link[^>]+href="[^"]*\/admin\.[^"]*\.css"[^>]*>/g, '')
+              .replace(/<link[^>]+rel="modulepreload"[^>]+href="[^"]*\/admin\.[^"]*\.js"[^>]*>/g, '')
+          },
+        })
+
+        // ── Defer render-blocking CSS ─────────────────────────────────────────
+        // Converte os <link rel="stylesheet"> dos assets locais para
+        // rel="preload" + onload (loadCSS pattern), eliminando o bloqueio de
+        // renderização de 1.3 s do Quasar CSS + index CSS.
+        //
+        // Seguro em SPA Vue porque o HTML inicial é só <div id="q-app"></div> —
+        // não há conteúdo visível antes do JS montar. Os assets são baixados em
+        // paralelo com o JS; na prática o CSS chega antes do Vue terminar de
+        // montar na maioria das conexões.
+        //
+        // Um CSS crítico inline mínimo (body bg + margin) evita flash branco
+        // enquanto o bundle ainda não aplicou os estilos.
+        viteConf.plugins.push({
+          name: 'defer-render-blocking-css',
+          // Roda DEPOIS do strip-admin-assets (plugins transformIndexHtml
+          // são chamados na ordem em que são registados).
+          transformIndexHtml(html) {
+            // CSS crítico inline — apenas o suficiente para evitar flash:
+            //   • background-color da página (#fbfbfa)
+            //   • margin: 0 para evitar salto do scrollbar
+            //   • #q-app min-height para reservar o espaço da viewport
+            const critical = '<style>html,body{margin:0;padding:0;background-color:#fbfbfa}#q-app{min-height:100vh}</style>'
+
+            // Substitui <link rel="stylesheet" href="/assets/…"> pelo padrão
+            // preload + onload. Não toca em links externos (Google Fonts, etc.)
+            // pois esses já usam o padrão media="print" onload.
+            let result = html.replace(
+              /<link rel="stylesheet" href="(\/assets\/[^"]+\.css)">/g,
+              (_, href) =>
+                `<link rel="preload" href="${href}" as="style" onload="this.onload=null;this.rel='stylesheet'">` +
+                `<noscript><link rel="stylesheet" href="${href}"></noscript>`,
+            )
+
+            // Insere o CSS crítico imediatamente antes do </head>
+            result = result.replace('</head>', `${critical}</head>`)
+
+            return result
+          },
+        })
+
         // ── Build optimizations ───────────────────────────────────────────────
         viteConf.build = viteConf.build || {}
 

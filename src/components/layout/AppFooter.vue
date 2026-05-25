@@ -5,14 +5,17 @@
       <!-- Col 1: Logo + social -->
       <div class="app-footer__brand">
         <router-link to="/" aria-label="Alumen Outdoors Structure — Home">
-          <img
-            src="/images/logotrans.png"
-            alt="Alumen Outdoors Structure"
-            width="260px"
-            height="auto"
-            loading="lazy"
-            class="app-footer__logo"
-          />
+          <picture>
+            <source srcset="/images/logotrans.webp" type="image/webp">
+            <img
+              src="/images/logotrans.png"
+              alt="Alumen Outdoors Structure"
+              width="133"
+              height="52"
+              loading="lazy"
+              class="app-footer__logo"
+            />
+          </picture>
         </router-link>
         <div class="app-footer__social" aria-label="Social media links">
           <a
@@ -167,9 +170,9 @@ const services = [
   }
 
   &__logo {
-    height: 60px;
-    width: 260px;
-    object-fit: cover;
+    height: 52px;
+    width: auto;
+    max-width: none;
     filter: brightness(0.9);
   }
 
@@ -248,7 +251,9 @@ const services = [
     color: $brand-silver;
     text-decoration: none;
     transition: color 0.2s;
-    display: block;
+    display: flex;
+    align-items: center;
+    min-height: 24px;
 
     &--icon {
       display: flex;

@@ -111,6 +111,35 @@ h4, h5, h6 {
   border-radius: 0 !important;
 }
 
+// ─── Image shimmer skeleton ──────────────────────────────────────────────────
+// Varredura horizontal de 1.6s — combine com .img-shimmer em qualquer container
+// que tenha position: relative.  Remova a classe (ou adicione .img-shimmer--done)
+// para apagar o shimmer com fade quando a imagem carregar.
+@keyframes img-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.img-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #1e1e1e 25%,
+    #2b2b2b 50%,
+    #1e1e1e 75%
+  );
+  background-size: 200% 100%;
+  animation: img-shimmer 1.6s ease-in-out infinite;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 1;
+
+  &--done {
+    opacity: 0;
+  }
+}
+
 // ─── Overlay helpers ─────────────────────────────────────────────────────────
 .overlay-dark {
   position: relative;

@@ -82,7 +82,6 @@
               unelevated
               no-caps
               class="contact-form__submit"
-              aria-label="Submit contact form"
             >
               <template #loading>
                 <q-spinner-dots size="20px" />
@@ -126,6 +125,10 @@ async function handleSubmit() {
 .contact-form {
   padding: $section-padding-y 0;
   background-color: $brand-white;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 480px;
+
+  @media (max-width: 599px) { contain-intrinsic-size: 0 560px; }
 
   &--dark {
     background-color: $brand-dark;
@@ -146,7 +149,7 @@ async function handleSubmit() {
     font-family: $font-family-body;
     font-size: clamp(26px, 3.5vw, 40px);
     font-weight: 600;
-    color: $brand-taupe;
+    color: $brand-dark;
     margin: 0 0 10px;
     line-height: 1.1;
   }
@@ -155,7 +158,7 @@ async function handleSubmit() {
     font-family: $font-family-body;
     font-size: 13px;
     font-weight: 300;
-    color: $brand-silver;
+    color: #5f5f5f;
     line-height: 1.65;
     margin: 0 0 28px;
   }

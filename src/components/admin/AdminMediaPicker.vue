@@ -129,9 +129,11 @@
             :alt="img.name"
             class="media-tile__img"
             loading="lazy"
+            decoding="async"
           />
-          <div v-else class="media-tile__placeholder" aria-hidden="true">
-            <q-icon name="image" size="24px" />
+          <div v-else class="media-tile__loading" aria-live="polite">
+            <q-spinner size="24px" color="grey-6" />
+            <span>Carregando</span>
           </div>
 
           <div class="media-tile__overlay">
@@ -251,14 +253,26 @@ export const metaCache: Map<string, number> = new Map()
 
 /** url original → url da variante thumb  (exibição no grid) */
 export const thumbMap: Record<string, string> = shallowReactive({})
+
+// Cached lazy imports — firebase/app e firebase/storage carregados só na
+// primeira vez que o picker tenta buscar metadata.  Remove a dependência estática
+// destes chunks do bundle público (≈ 50 KB para storage + já incluso no core).
+let _storageModCache: Promise<typeof import('firebase/storage')> | null = null
+function _storageMod() {
+  if (!_storageModCache) _storageModCache = import('firebase/storage')
+  return _storageModCache
+}
+let _appModCache: Promise<typeof import('firebase/app')> | null = null
+function _appMod() {
+  if (!_appModCache) _appModCache = import('firebase/app')
+  return _appModCache
+}
 </script>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useCmsStore, IS_MOCK_MODE } from 'src/stores/cms'
-import { getApp } from 'firebase/app'
-import { getStorage, ref as storageRef, getMetadata } from 'firebase/storage'
 import { populateVariantCache, resolveImageVariant } from 'src/composables/cms/useImageVariant'
 
 // ── Props / emits ──────────────────────────────────────────────────────────────
@@ -303,6 +317,9 @@ interface GalleryItem { url: string; name: string; timeCreated?: number }
 const metaLoading = ref(false)
 // thumbMap e metaCache vêm do bloco <script> (nível de módulo) — não declarar aqui
 
+/** Detecta arquivos que são variantes geradas (thumb / medium) — não devem aparecer no picker */
+const VARIANT_RE = /_(thumb|medium)\.(webp|jpg|jpeg|png)$/i
+
 function urlToStoragePath(url: string): string {
   const match = url.match(/\/o\/([^?]+)/)
   return match ? decodeURIComponent(match[1]) : ''
@@ -313,22 +330,56 @@ function urlToName(url: string): string {
     .replace(/^media\//, '')
 }
 
-// Unsorted list from store (names + cached times if already fetched)
+function storagePathBaseName(storagePath: string): string {
+  const fileName = storagePath.split('/').pop() ?? storagePath
+  const dotIndex = fileName.lastIndexOf('.')
+  return dotIndex > 0 ? fileName.slice(0, dotIndex) : fileName
+}
+
+async function resolveThumbUrl(url: string): Promise<string | null> {
+  const resolved = await resolveImageVariant(url, 'thumb')
+  if (resolved && resolved !== url) return resolved
+
+  const originalPath = urlToStoragePath(url)
+  if (!originalPath) return null
+
+  const [{ getStorage, ref: storageRef, getDownloadURL }, { getApp }] = await Promise.all([
+    _storageMod(),
+    _appMod(),
+  ])
+  const storage = getStorage(getApp())
+  const thumbPath = `media/variants/thumb/${storagePathBaseName(originalPath)}.webp`
+
+  try {
+    return await getDownloadURL(storageRef(storage, thumbPath))
+  } catch (e) {
+    logWarn('direct thumb url failed', {
+      originalPath,
+      thumbPath,
+      error: (e as Error).message,
+    })
+    return null
+  }
+}
+
+// Unsorted list from store — exclui variantes geradas pela Cloud Function
 const images = computed<GalleryItem[]>(() =>
-  (store.listaGaleria as string[]).map((url: string) => ({
-    url,
-    name: urlToName(url),
-    timeCreated: metaCache.get(url),
-  }))
+  (store.listaGaleria as string[])
+    .filter((url: string) => !VARIANT_RE.test(urlToName(url)))
+    .map((url: string) => ({
+      url,
+      name: urlToName(url),
+      timeCreated: metaCache.get(url),
+    }))
 )
 
 // Sorted list: items with known timeCreated first (desc), then unknown ones
 const sortedImages = computed<GalleryItem[]>(() => {
   const list = [...images.value]
   list.sort((a, b) => {
-    if (a.timeCreated && b.timeCreated) return b.timeCreated - a.timeCreated
-    if (a.timeCreated) return -1
-    if (b.timeCreated) return 1
+    if (a.timeCreated !== undefined && b.timeCreated !== undefined) return b.timeCreated - a.timeCreated
+    if (a.timeCreated !== undefined) return -1
+    if (b.timeCreated !== undefined) return 1
     return 0
   })
   return list
@@ -344,13 +395,23 @@ const filtered = computed(() => {
 const visibleImages = computed(() => filtered.value.slice(0, visibleLimit.value))
 
 const logPrefix = '[AdminMediaPicker]'
+let openLogSeq = 0
+const activeOpenLogId = ref('')
 
 function logInfo(message: string, data?: Record<string, unknown>) {
-  console.info(`${logPrefix} ${message}`, data ?? '')
+  console.info(`${logPrefix} ${message}`, {
+    at: new Date().toISOString(),
+    openId: activeOpenLogId.value || undefined,
+    ...(data ?? {}),
+  })
 }
 
 function logWarn(message: string, data?: Record<string, unknown>) {
-  console.warn(`${logPrefix} ${message}`, data ?? '')
+  console.warn(`${logPrefix} ${message}`, {
+    at: new Date().toISOString(),
+    openId: activeOpenLogId.value || undefined,
+    ...(data ?? {}),
+  })
 }
 
 function waitForIdle() {
@@ -399,8 +460,19 @@ function onGridScroll(event: Event) {
  */
 async function buildThumbMap(targetImages = visibleImages.value) {
   const started = performance.now()
-  const missing = targetImages.map(i => i.url).filter(u => u && !thumbMap[u])
-  if (!missing.length) return
+  const missing = targetImages.map(i => i.url).filter(u => u && !(u in thumbMap))
+  logInfo('phase: thumbs started', {
+    target: targetImages.length,
+    missing: missing.length,
+    cachedThumbs: Object.keys(thumbMap).length,
+  })
+  if (!missing.length) {
+    logInfo('phase: thumbs skipped', {
+      reason: 'all target thumbs cached',
+      ms: Math.round(performance.now() - started),
+    })
+    return
+  }
   let resolvedCount = 0
   let fallbackCount = 0
   let errorCount = 0
@@ -408,11 +480,12 @@ async function buildThumbMap(targetImages = visibleImages.value) {
   await Promise.allSettled(
     missing.map(async (url) => {
       try {
-        const resolved = await resolveImageVariant(url, 'thumb')
-        if (resolved && resolved !== url) {
+        const resolved = await resolveThumbUrl(url)
+        if (resolved) {
           thumbMap[url] = resolved
           resolvedCount++
         } else {
+          thumbMap[url] = ''
           fallbackCount++
         }
       } catch (e) {
@@ -421,7 +494,7 @@ async function buildThumbMap(targetImages = visibleImages.value) {
       }
     })
   )
-  logInfo('thumb batch finished', {
+  logInfo('phase: thumbs finished', {
     requested: missing.length,
     resolved: resolvedCount,
     withoutVariant: fallbackCount,
@@ -439,16 +512,23 @@ async function buildThumbMap(targetImages = visibleImages.value) {
  */
 async function fetchMissingMetadata(
   targetImages = visibleImages.value,
-  opts: { reason?: string; background?: boolean } = {},
+  opts: { reason?: string; background?: boolean; buildThumbs?: boolean } = {},
 ) {
   if (IS_MOCK_MODE) { void buildThumbMap(targetImages); return }
 
   const uncached = targetImages.filter(i => !metaCache.has(i.url))
+  logInfo('phase: metadata requested', {
+    reason: opts.reason ?? 'unknown',
+    target: targetImages.length,
+    uncached: uncached.length,
+    cachedMetadata: metaCache.size,
+    buildThumbs: opts.buildThumbs !== false,
+  })
 
   if (!uncached.length) {
     // Tudo cacheado — só garante que thumbMap tem entradas para imagens novas
     // adicionadas por outra aba/sessão (raro, mas seguro)
-    void buildThumbMap(targetImages)
+    if (opts.buildThumbs !== false) void buildThumbMap(targetImages)
     return
   }
 
@@ -456,25 +536,42 @@ async function fetchMissingMetadata(
   const started = performance.now()
   let successCount = 0
   let errorCount = 0
-  logInfo('metadata batch started', {
+  logInfo('phase: metadata started', {
     reason: opts.reason ?? 'unknown',
     requested: uncached.length,
     visible: visibleImages.value.length,
     total: images.value.length,
   })
   try {
+    const [{ getStorage, ref: storageRef, getMetadata }, { getApp }] = await Promise.all([
+      _storageMod(),
+      _appMod(),
+    ])
     const storage = getStorage(getApp())
     const BATCH   = 6   // evita saturar o Firebase e mantém o browser responsivo
 
     for (let i = 0; i < uncached.length; i += BATCH) {
+      const batchStarted = performance.now()
+      let batchSuccessCount = 0
+      let batchErrorCount = 0
+      const batch = uncached.slice(i, i + BATCH)
+      const batchIndex = Math.floor(i / BATCH) + 1
+      const totalBatches = Math.ceil(uncached.length / BATCH)
+      logInfo('phase: metadata batch started', {
+        reason: opts.reason ?? 'unknown',
+        batch: batchIndex,
+        totalBatches,
+        size: batch.length,
+      })
       await Promise.allSettled(
-        uncached.slice(i, i + BATCH).map(async (img) => {
+        batch.map(async (img) => {
           const path = urlToStoragePath(img.url)
           if (!path) return
           try {
             const meta = await getMetadata(storageRef(storage, path))
             metaCache.set(img.url, new Date(meta.timeCreated).getTime())
             successCount++
+            batchSuccessCount++
             // Aproveita o metadata já buscado para popular variantCache —
             // sem segunda chamada HTTP para as variantes
             populateVariantCache(
@@ -483,16 +580,25 @@ async function fetchMissingMetadata(
             )
           } catch (e) {
             errorCount++
+            batchErrorCount++
             logWarn('metadata fetch failed', { path, error: (e as Error).message })
           }
         })
       )
+      logInfo('phase: metadata batch finished', {
+        reason: opts.reason ?? 'unknown',
+        batch: batchIndex,
+        totalBatches,
+        success: batchSuccessCount,
+        errors: batchErrorCount,
+        ms: Math.round(performance.now() - batchStarted),
+      })
       if (opts.background) await waitForIdle()
     }
   } finally {
     metaLoading.value = false
   }
-  logInfo('metadata batch finished', {
+  logInfo('phase: metadata finished', {
     reason: opts.reason ?? 'unknown',
     requested: uncached.length,
     success: successCount,
@@ -501,7 +607,7 @@ async function fetchMissingMetadata(
   })
 
   // Adiciona thumbs novas ao mapa (lê do variantCache — sem HTTP)
-  void buildThumbMap(targetImages)
+  if (opts.buildThumbs !== false) void buildThumbMap(targetImages)
 }
 
 async function fetchBackgroundMetadata() {
@@ -519,22 +625,27 @@ const isOpen = computed({
 
 watch(isOpen, async (open) => {
   if (!open) return
+  activeOpenLogId.value = `media-picker-open-${++openLogSeq}`
+  const openStarted = performance.now()
   selected.value = props.initialSelected ?? ''
   selectedSet.value = new Set()
   selectionList.value = []
   search.value = ''
   visibleLimit.value = PAGE_SIZE
-  logInfo('dialog opened', {
+  logInfo('phase: dialog opened', {
     cachedImages: images.value.length,
     cachedMetadata: metaCache.size,
     cachedThumbs: Object.keys(thumbMap).length,
+    pageSize: PAGE_SIZE,
+    isMock,
   })
   if (!isMock && images.value.length === 0) {
     loading.value = true
     const started = performance.now()
     try {
+      logInfo('phase: image list started')
       await store.getImg()
-      logInfo('image list loaded', {
+      logInfo('phase: image list finished', {
         total: images.value.length,
         ms: Math.round(performance.now() - started),
       })
@@ -545,9 +656,17 @@ watch(isOpen, async (open) => {
       loading.value = false
     }
   }
-  // Prioriza apenas as imagens visíveis; o restante roda em baixa prioridade.
-  void fetchMissingMetadata(visibleImages.value, { reason: 'dialog-open' })
-  void fetchBackgroundMetadata()
+  if (!isMock && images.value.length > 0) {
+    void fetchMissingMetadata(images.value, { reason: 'dialog-open-sort', buildThumbs: false })
+  }
+  await buildThumbMap(visibleImages.value)
+  logInfo('phase: dialog ready', {
+    totalImages: images.value.length,
+    visibleImages: visibleImages.value.length,
+    cachedMetadata: metaCache.size,
+    cachedThumbs: Object.keys(thumbMap).length,
+    ms: Math.round(performance.now() - openStarted),
+  })
 })
 
 // ── Upload ─────────────────────────────────────────────────────────────────────
@@ -974,6 +1093,25 @@ function confirmDelete(img: GalleryItem) {
     background:
       linear-gradient(135deg, rgba(255,255,255,0.04), transparent),
       $adm-surface-2;
+  }
+
+  &__loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: $adm-text-3;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.04), transparent),
+      $adm-surface-2;
+
+    span {
+      font-family: $font-family-body;
+      font-size: 11px;
+    }
   }
 
   &__overlay {

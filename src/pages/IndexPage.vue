@@ -1,25 +1,61 @@
 <template>
   <q-page>
     <!-- 1. Hero -->
-
     <HeroSection :image-url="heroImageUrl" />
 
     <!-- 2. Services Grid -->
     <ServicesGrid />
 
-    <!-- 3. Process Section -->
-    <ProcessSection />
+    <!--
+      3–5. Below-the-fold sections.
 
-    <!-- 4. Full-bleed feature photo -->
-    <FeaturePhoto />
+      Each is wrapped in <Suspense> so Vue shows a zero-JS placeholder
+      (matching the section's approximate height) while the async chunk downloads.
+      The chunk is also pre-warmed during idle time in the script below, so on
+      most visits the Suspense resolves before the user ever scrolls here.
+    -->
+    <Suspense>
+      <ProcessSection />
+      <template #fallback>
+        <!-- Dark skeleton matching ProcessSection background + approximate height -->
+        <div class="section-skeleton section-skeleton--dark" aria-hidden="true" />
+      </template>
+    </Suspense>
 
-    <!-- 5. Contact Form -->
-    <ContactForm aria-label="Home page contact section" />
+    <Suspense>
+      <FeaturePhoto />
+      <template #fallback>
+        <div class="section-skeleton section-skeleton--photo" aria-hidden="true" />
+      </template>
+    </Suspense>
+
+    <Suspense>
+      <ContactForm aria-label="Home page contact section" />
+      <template #fallback>
+        <div class="section-skeleton section-skeleton--contact" aria-hidden="true" />
+      </template>
+    </Suspense>
   </q-page>
 </template>
 
+<style>
+/* Skeleton placeholders — keep heights in sync with actual section heights */
+.section-skeleton {
+  width: 100%;
+}
+.section-skeleton--dark    { background: #1a1a1a; min-height: 720px; }
+.section-skeleton--photo   { background: #252525; min-height: 400px; }
+.section-skeleton--contact { background: #1a1a1a; min-height: 480px; }
+
+@media (max-width: 599px) {
+  .section-skeleton--dark    { min-height: 480px; }
+  .section-skeleton--photo   { min-height: 200px; }
+  .section-skeleton--contact { min-height: 360px; }
+}
+</style>
+
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, onMounted } from 'vue'
 import { useMeta } from 'quasar'
 import { useCmsStore } from 'stores/cms'
 
@@ -27,7 +63,8 @@ import { useCmsStore } from 'stores/cms'
 import HeroSection  from 'components/home/HeroSection.vue'
 import ServicesGrid from 'components/home/ServicesGrid.vue'
 
-// Abaixo da dobra — Vite cria chunks separados, carregam quando necessários
+// Abaixo da dobra — Vite cria chunks separados e os pré-aquece durante idle
+// (ver onMounted abaixo).  defineAsyncComponent garante split correto pelo Vite.
 const ProcessSection = defineAsyncComponent(() => import('components/home/ProcessSection.vue'))
 const FeaturePhoto   = defineAsyncComponent(() => import('components/shared/FeaturePhoto.vue'))
 const ContactForm    = defineAsyncComponent(() => import('components/shared/ContactForm.vue'))
@@ -135,9 +172,61 @@ useMeta({
   },
 })
 
-// ── CMS images ────────────────────────────────────────────────────────────────
+// ── Preload below-fold chunks during browser idle time ────────────────────────
+// This fires after the first paint (onMounted) and uses idle time to download
+// the async chunks for Process/FeaturePhoto/Contact.  By the time the user
+// scrolls there, the modules are already parsed and ready — the Suspense
+// fallback resolves instantly instead of waiting for a network round-trip.
+onMounted(() => {
+  const preload = () => {
+    void import('components/home/ProcessSection.vue')
+    void import('components/shared/FeaturePhoto.vue')
+    void import('components/shared/ContactForm.vue')
+  }
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(preload, { timeout: 2000 })
+  } else {
+    window.setTimeout(preload, 200)
+  }
+})
+
+// ── CMS images — LCP optimization ────────────────────────────────────────────
+// On first load the hero URL arrives only after Firestore responds (~300–800 ms).
+// We cache the last-known URL in localStorage so that on subsequent visits:
+//   1. The hero renders immediately (no blank → image swap).
+//   2. A <link rel="preload"> is injected synchronously so the browser fetches
+//      the image in parallel with JS execution, shaving ~1–2 s off LCP.
+import { watch, onUnmounted } from 'vue'
+
+const HERO_CACHE_KEY = 'alumen_hero_url'
+
 interface ConfigDoc { heroImage?: string }
 const store = useCmsStore()
+
+// Start with the cached URL (may be '') — updates reactively when Firestore loads
 const heroImageUrl = computed(() => (store.config as ConfigDoc | null)?.heroImage ?? '')
+
+// Inject a preload hint for the cached hero URL as soon as the page mounts
+const cachedHeroUrl = typeof localStorage !== 'undefined'
+  ? (localStorage.getItem(HERO_CACHE_KEY) ?? '')
+  : ''
+
+if (cachedHeroUrl) {
+  const link = document.createElement('link')
+  link.rel = 'preload'
+  link.as  = 'image'
+  link.href = cachedHeroUrl
+  link.fetchPriority = 'high'
+  document.head.appendChild(link)
+}
+
+// Persist the URL to localStorage whenever Firestore delivers a new value
+const stopWatch = watch(heroImageUrl, (url) => {
+  if (url && typeof localStorage !== 'undefined') {
+    localStorage.setItem(HERO_CACHE_KEY, url)
+  }
+})
+
+onUnmounted(() => stopWatch())
 
 </script>

@@ -101,6 +101,12 @@ function splitParas(text: unknown): string[] {
   background-color: $brand-dark;
   color: $brand-white;
   padding: $section-padding-y 0;
+  // Skip layout + paint for offscreen content — massive scroll perf win on mobile.
+  // contain-intrinsic-size matches approximate rendered height to prevent jump.
+  content-visibility: auto;
+  contain-intrinsic-size: 0 720px;
+
+  @media (max-width: 599px) { contain-intrinsic-size: 0 900px; }
 
   @media (max-width: 599px) { padding: $section-padding-y-sm 0; }
 
@@ -118,7 +124,7 @@ function splitParas(text: unknown): string[] {
     font-weight: 400;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: rgba($brand-white, 0.45);
+    color: $brand-silver;
     margin: 0 0 16px;
   }
 

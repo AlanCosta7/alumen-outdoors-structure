@@ -10,13 +10,8 @@
     >
       <div class="contact-hero__overlay" aria-hidden="true" />
       <div class="contact-hero__content">
-        <h1 class="contact-hero__heading">
-          Ready to Transform<br />Your Space?
-        </h1>
-        <p class="contact-hero__sub">
-          High-quality enclosures that add comfort,<br />
-          style, and everyday usability.
-        </p>
+        <h1 class="contact-hero__heading" v-html="heroHeadingHtml" />
+        <p class="contact-hero__sub">{{ contact.heroSub }}</p>
       </div>
     </header>
 
@@ -25,27 +20,17 @@
       <div class="max-content contact-intro__grid">
 
         <div class="contact-intro__left">
-          <p class="eyebrow">Contact Us</p>
-          <h2 id="contact-intro-heading" class="contact-intro__heading">
-            Let's Build<br />with Precision
-          </h2>
+          <p class="eyebrow">{{ contact.introEyebrow }}</p>
+          <h2 id="contact-intro-heading" class="contact-intro__heading" v-html="introHeadingHtml" />
           <div class="contact-intro__rule" aria-hidden="true" />
         </div>
 
         <div class="contact-intro__right">
-          <p class="contact-intro__para">
-            If you're ready to elevate your outdoor space, our team is
-            prepared to guide you through a structured and professional process.
-          </p>
-          <p class="contact-intro__para">
-            Reach out to schedule your private consultation. We'll assess your
-            project, answer your questions, and provide clear direction based on
-            your goals.
-          </p>
-          <p class="contact-intro__para">
-            At Alumen Outdoors Structure, every conversation is the first step
-            toward a well-executed result.
-          </p>
+          <p
+            v-for="(para, i) in contact.introParagraphs"
+            :key="i"
+            class="contact-intro__para"
+          >{{ para }}</p>
         </div>
 
       </div>
@@ -80,8 +65,8 @@
           <div class="contact-details__item">
             <dt class="contact-details__label">Phone:</dt>
             <dd class="contact-details__value">
-              <a href="tel:+19415265425" class="contact-details__link contact-details__link--phone">
-                (941) 526-5425
+              <a :href="phoneHref" class="contact-details__link contact-details__link--phone">
+                {{ contact.phone }}
               </a>
             </dd>
           </div>
@@ -89,8 +74,8 @@
           <div class="contact-details__item">
             <dt class="contact-details__label">E-Mail:</dt>
             <dd class="contact-details__value">
-              <a href="mailto:sales@skywayaluminum.com" class="contact-details__link contact-details__link--upper">
-                sales@skywayaluminum.com
+              <a :href="'mailto:' + contact.email" class="contact-details__link contact-details__link--upper">
+                {{ contact.email }}
               </a>
             </dd>
           </div>
@@ -98,16 +83,17 @@
           <div class="contact-details__item contact-details__item--block">
             <dt class="contact-details__label">Service Areas:</dt>
             <dd class="contact-details__value contact-details__value--areas">
-              • Sarasota • Tampa • Bradenton<br />
-              • Venice • North Port
+              <template v-for="(area, i) in contact.serviceAreas" :key="area">
+                <template v-if="i > 0"> • </template>{{ area }}
+              </template>
             </dd>
           </div>
 
           <div class="contact-details__item contact-details__item--block">
             <dt class="contact-details__label">Opening Hours:</dt>
             <dd class="contact-details__value">
-              Mon-Fri: 8AM – 6PM<br />
-              Sat: 9AM – 2PM
+              {{ contact.hoursWeekday }}<br />
+              {{ contact.hoursSat }}
             </dd>
           </div>
 
@@ -116,7 +102,7 @@
         <!-- Social icons -->
         <div class="contact-details__social" aria-label="Social media links">
           <a
-            href="https://www.instagram.com/alumenoutdoors"
+            :href="contact.instagramUrl"
             target="_blank"
             rel="noopener noreferrer"
             class="contact-details__social-link"
@@ -132,7 +118,7 @@
             </svg>
           </a>
           <a
-            href="https://www.facebook.com/alumenoutdoors"
+            :href="contact.facebookUrl"
             target="_blank"
             rel="noopener noreferrer"
             class="contact-details__social-link"
@@ -166,9 +152,49 @@ import { useCmsStore } from 'stores/cms'
 import ContactForm from 'components/shared/ContactForm.vue'
 import FeaturePhoto from 'components/shared/FeaturePhoto.vue'
 
-// ── CMS hero image ─────────────────────────────────────────────────────────────
 interface ConfigDoc { heroImage?: string; contactHeroImage?: string }
+type PageDoc = Record<string, unknown>
+
 const store = useCmsStore()
+
+// ── Contact section do CMS ─────────────────────────────────────────────────────
+const contact = computed(() => {
+  const pages = Array.isArray(store.pages) ? (store.pages as PageDoc[]) : []
+  const s = pages.find(p => p['sectionId'] === 'contact-page') ?? {}
+
+  const str = (key: string, fb: string) =>
+    typeof s[key] === 'string' ? (s[key] as string) : fb
+  const arr = (key: string, fb: string[]) =>
+    Array.isArray(s[key]) ? (s[key] as string[]) : fb
+
+  return {
+    heroHeading:     str('heroHeading', 'Ready to Transform\nYour Space?'),
+    heroSub:         str('heroSub', 'High-quality enclosures that add comfort, style, and everyday usability.'),
+    introEyebrow:    str('introEyebrow', 'Contact Us'),
+    introHeading:    str('introHeading', "Let's Build\nwith Precision"),
+    introParagraphs: arr('introParagraphs', [
+      "If you're ready to elevate your outdoor space, our team is prepared to guide you through a structured and professional process.",
+      "Reach out to schedule your private consultation. We'll assess your project, answer your questions, and provide clear direction based on your goals.",
+      "At Alumen Outdoors Structure, every conversation is the first step toward a well-executed result.",
+    ]),
+    phone:        str('phone', '(941) 526-5425'),
+    email:        str('email', 'sales@skywayaluminum.com'),
+    serviceAreas: arr('serviceAreas', ['Sarasota', 'Tampa', 'Bradenton', 'Venice', 'North Port']),
+    hoursWeekday: str('hoursWeekday', 'Mon-Fri: 8AM – 6PM'),
+    hoursSat:     str('hoursSat', 'Sat: 9AM – 2PM'),
+    instagramUrl: str('instagramUrl', 'https://www.instagram.com/alumenoutdoors'),
+    facebookUrl:  str('facebookUrl', 'https://www.facebook.com/alumenoutdoors'),
+  }
+})
+
+// ── Strings HTML (quebras de linha) ────────────────────────────────────────────
+const heroHeadingHtml  = computed(() => contact.value.heroHeading.replace(/\n/g, '<br>'))
+const introHeadingHtml = computed(() => contact.value.introHeading.replace(/\n/g, '<br>'))
+
+// ── Telefone — gera href tel: automaticamente (número US) ─────────────────────
+const phoneHref = computed(() => 'tel:+1' + contact.value.phone.replace(/\D/g, ''))
+
+// ── Imagem hero (vem do config, não do pages) ──────────────────────────────────
 const heroImageUrl = computed(() => {
   const cfg = store.config as ConfigDoc | null
   return cfg?.contactHeroImage ?? cfg?.heroImage ?? ''

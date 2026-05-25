@@ -61,11 +61,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useCmsStore } from 'stores/cms'
 
 const store    = useCmsStore()
 const router   = useRouter()
+const route    = useRoute()
 
 const email    = ref('')
 const password = ref('')
@@ -76,7 +77,13 @@ async function handleLogin() {
   loading.value = true
   try {
     const user = await store.signIn({ email: email.value, password: password.value })
-    if (user) void router.push({ name: 'admin-config' })
+    if (user) {
+      // Redireciona para a rota que acionou o guard (se houver), senão para config
+      const redirect = typeof route.query.redirect === 'string'
+        ? route.query.redirect
+        : '/admin/config'
+      void router.push(redirect)
+    }
   } finally {
     loading.value = false
   }

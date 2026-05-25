@@ -1,15 +1,13 @@
 /**
  * Auth composable — login, logout e watch de auth state.
  *
+ * Imports de firebase/auth são dinâmicos (lazy) — o chunk (~186 KB) não é
+ * incluído no bundle inicial e só é carregado no primeiro uso.
+ *
  * Sem estado reativo interno; use a store se precisar de reatividade.
  */
 
-import {
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut as fbSignOut,
-  type User,
-} from 'firebase/auth'
+import type { User } from 'firebase/auth'
 
 import { useFirebase } from 'src/firebase/init'
 
@@ -31,14 +29,21 @@ export interface AuthOptions {
 }
 
 const DEFAULT_ERROR_MESSAGES: Record<string, string> = {
-  'auth/user-not-found':     'User not found.',
-  'auth/wrong-password':     'Wrong password.',
-  'auth/invalid-email':      'Invalid email.',
-  'auth/email-already-in-use': 'Email already in use.',
-  'auth/weak-password':      'Weak password. The password must be at least 6 characters long.',
+  'auth/user-not-found':        'User not found.',
+  'auth/wrong-password':        'Wrong password.',
+  'auth/invalid-email':         'Invalid email.',
+  'auth/email-already-in-use':  'Email already in use.',
+  'auth/weak-password':         'Weak password. The password must be at least 6 characters long.',
 }
 
 const noop: Callback = () => {}
+
+// Cached promise — firebase/auth (~186 KB) fetched only once
+let _authModule: Promise<typeof import('firebase/auth')> | null = null
+function authModule() {
+  if (!_authModule) _authModule = import('firebase/auth')
+  return _authModule
+}
 
 export function formatUser(user: User | null): CmsUser | null {
   if (!user) return null
@@ -56,6 +61,7 @@ export function useAuth(options: AuthOptions = {}) {
 
   async function signIn({ email, password }: { email: string; password: string }) {
     if ($auth.currentUser) return formatUser($auth.currentUser)
+    const { signInWithEmailAndPassword } = await authModule()
     try {
       const cred = await signInWithEmailAndPassword($auth, email, password)
       return formatUser(cred.user)
@@ -72,13 +78,22 @@ export function useAuth(options: AuthOptions = {}) {
       const proceed = await opts.confirm()
       if (!proceed) return false
     }
+    const { signOut: fbSignOut } = await authModule()
     await fbSignOut($auth)
     handleCallback({ type: 'positive', message: 'You have been successfully logged out.' })
     return true
   }
 
   function watchAuth(onChange: (user: CmsUser | null) => void) {
-    return onAuthStateChanged($auth, user => onChange(formatUser(user)))
+    // Returns a stable unsubscribe function; wires up the listener once the
+    // auth chunk loads (normally already cached by the login page).
+    let realUnsub: (() => void) | null = null
+
+    void authModule().then(({ onAuthStateChanged }) => {
+      realUnsub = onAuthStateChanged($auth, user => onChange(formatUser(user)))
+    })
+
+    return () => { realUnsub?.() }
   }
 
   return {

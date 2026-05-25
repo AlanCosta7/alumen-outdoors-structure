@@ -43,6 +43,11 @@
           >
             <!-- Image -->
             <div class="service-card__img-wrap" aria-hidden="true">
+              <!-- Shimmer: visível enquanto a imagem não carregou -->
+              <div
+                class="img-shimmer"
+                :class="{ 'img-shimmer--done': loadedCards[service.slug] }"
+              />
               <img
                 v-if="service.photo"
                 :src="photoMap[service.photo] ?? service.photo"
@@ -51,9 +56,9 @@
                 decoding="async"
                 width="480"
                 height="360"
-                class="service-card__img"
+                :class="['service-card__img', { 'is-loaded': loadedCards[service.slug] }]"
+                @load="onCardLoad(service.slug)"
               />
-              <div v-else class="service-card__img-placeholder" />
               <div class="service-card__overlay" aria-hidden="true" />
             </div>
 
@@ -74,6 +79,16 @@ import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCmsStore } from 'stores/cms'
 import { prefetchVariants, resolveImageVariant } from 'src/composables/cms/useImageVariant'
+
+// Rastreia quais cards já tiveram imagem carregada — keyed by service.slug.
+// Usar ref<Record> em vez de classList imperativo garante que o Vue mantenha
+// o estado mesmo que o elemento seja re-patchado.
+const loadedCards = ref<Record<string, boolean>>({})
+
+function onCardLoad(slug: string) {
+  // Spread cria novo objeto → Vue detecta mudança e re-renderiza
+  loadedCards.value = { ...loadedCards.value, [slug]: true }
+}
 
 interface ServiceDoc {
   id: string
@@ -111,17 +126,36 @@ const services = computed(() => {
     }))
 })
 
-// Resolve medium variants whenever the services list changes
+// ── Resolve medium variants progressively ─────────────────────────────────────
+// Updates photoMap per-image as each getMetadata() resolves instead of waiting
+// for all of them — cards fill in as variants become available rather than all
+// at once.  A Set guards against processing the same URL twice.
+const resolvedUrls = new Set<string>()
+
+async function resolveVariants(list: typeof services.value) {
+  const urls = list.map(s => s.photo).filter(u => u && !resolvedUrls.has(u))
+  if (!urls.length) return
+
+  // Kick off prefetch (populates variant cache) and immediately start resolving
+  void prefetchVariants(urls, 'medium')
+
+  await Promise.allSettled(
+    urls.map(async (url) => {
+      resolvedUrls.add(url)
+      const variant = await resolveImageVariant(url, 'medium')
+      // Update one entry at a time — Vue batches same-tick mutations
+      photoMap.value = { ...photoMap.value, [url]: variant }
+    }),
+  )
+}
+
+// Debounce prevents double-fire when Firestore sends cache→network updates
+let _resolveTimer: ReturnType<typeof setTimeout> | null = null
 watch(
   services,
-  async (list) => {
-    const urls = list.map(s => s.photo).filter(Boolean)
-    if (!urls.length) return
-    await prefetchVariants(urls, 'medium')
-    const entries = await Promise.all(
-      urls.map(async (url) => [url, await resolveImageVariant(url, 'medium')] as const)
-    )
-    photoMap.value = Object.fromEntries(entries)
+  (list) => {
+    if (_resolveTimer) clearTimeout(_resolveTimer)
+    _resolveTimer = setTimeout(() => void resolveVariants(list), 60)
   },
   { immediate: true },
 )
@@ -218,21 +252,21 @@ watch(
   }
 
   &__img {
+    position: relative; // fica acima do shimmer (z-index: 2)
+    z-index: 2;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
-  }
+    transition: transform 0.5s ease, opacity 0.4s ease;
+    opacity: 0; // começa invisible; .is-loaded revela com fade
 
-  &__img-placeholder {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    &.is-loaded { opacity: 1; }
   }
 
   &__overlay {
     position: absolute;
     inset: 0;
+    z-index: 3; // acima da img (2) e do shimmer (1)
     background: linear-gradient(
       to top,
       rgba($brand-dark, 0.88) 0%,

@@ -24,6 +24,7 @@
       <q-tab name="story"      label="Sobre — História"  icon="auto_stories" />
       <q-tab name="values"     label="Sobre — Valores"   icon="verified" />
       <q-tab name="team-intro" label="Sobre — Equipe"    icon="group" />
+      <q-tab name="contact"    label="Contact — Página" icon="contact_phone" />
     </q-tabs>
 
     <q-tab-panels v-model="activeTab" animated keep-alive class="bg-transparent">
@@ -298,6 +299,119 @@
         </SectionPanel>
       </q-tab-panel>
 
+      <!-- ════════════════════════════════════════════════════════════════════════
+           TAB: CONTACT PAGE
+           ════════════════════════════════════════════════════════════════════ -->
+      <q-tab-panel name="contact" class="q-pa-none">
+        <SectionPanel
+          title="Página Contact"
+          description="Hero, intro, dados de contacto e redes sociais."
+          :saved="!!contactDocId"
+        >
+
+          <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+          <p class="adm-section-label q-mb-sm">
+            <q-icon name="image" size="14px" />Hero
+          </p>
+          <div class="row q-col-gutter-md q-mb-lg">
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.heroHeading"
+                label="Título" type="textarea" autogrow
+                hint="Use \n para quebrar linha. Ex: Ready to Transform\nYour Space?" />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.heroSub"
+                label="Subtítulo" type="textarea" autogrow
+                hint="Frase abaixo do título" />
+            </div>
+          </div>
+
+          <div class="adm-card__divider q-mb-md" style="margin-left:0;margin-right:0" />
+
+          <!-- ── Intro ─────────────────────────────────────────────────────────── -->
+          <p class="adm-section-label q-mb-sm">
+            <q-icon name="article" size="14px" />Seção Intro
+          </p>
+          <div class="row q-col-gutter-md q-mb-md">
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.introEyebrow"
+                label="Eyebrow" hint="Ex: Contact Us" />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.introHeading"
+                label="Heading" hint="Use \n para quebrar linha. Ex: Let's Build\nwith Precision" />
+            </div>
+          </div>
+          <AdminArrayField
+            v-model="contact.introParagraphs"
+            label="Parágrafos"
+            item-label="parágrafo"
+            placeholder="Ex: If you're ready to elevate your outdoor space..."
+            :multiline="true"
+            class="q-mb-lg"
+          />
+
+          <div class="adm-card__divider q-mb-md" style="margin-left:0;margin-right:0" />
+
+          <!-- ── Contact Details ───────────────────────────────────────────────── -->
+          <p class="adm-section-label q-mb-sm">
+            <q-icon name="contact_phone" size="14px" />Dados de Contacto
+          </p>
+          <div class="row q-col-gutter-md q-mb-md">
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.phone"
+                label="Telefone (exibição)" hint="Ex: (941) 526-5425" />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.email"
+                label="E-mail" hint="Ex: sales@skywayaluminum.com" />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.hoursWeekday"
+                label="Horário Seg–Sex" hint="Ex: Mon-Fri: 8AM – 6PM" />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.hoursSat"
+                label="Horário Sábado" hint="Ex: Sat: 9AM – 2PM" />
+            </div>
+          </div>
+          <p class="adm-section-label q-mb-sm">
+            <q-icon name="location_on" size="14px" />Áreas de Atendimento
+          </p>
+          <AdminArrayField
+            v-model="contact.serviceAreas"
+            label="Cidades / Regiões"
+            item-label="cidade"
+            placeholder="Ex: Sarasota"
+            class="q-mb-lg"
+          />
+
+          <div class="adm-card__divider q-mb-md" style="margin-left:0;margin-right:0" />
+
+          <!-- ── Social ────────────────────────────────────────────────────────── -->
+          <p class="adm-section-label q-mb-sm">
+            <q-icon name="share" size="14px" />Redes Sociais
+          </p>
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.instagramUrl"
+                label="Instagram URL" hint="Ex: https://www.instagram.com/alumenoutdoors" />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input dark filled dense v-model="contact.facebookUrl"
+                label="Facebook URL" hint="Ex: https://www.facebook.com/alumenoutdoors" />
+            </div>
+          </div>
+
+          <template #footer>
+            <q-btn flat no-caps label="Descartar" color="grey-5" icon="undo"
+              :disable="saving.contact" @click="resetSection('contact')" />
+            <q-btn unelevated no-caps label="Salvar seção" color="positive" text-color="dark"
+              icon="save" :loading="saving.contact" @click="saveSection('contact')" />
+          </template>
+        </SectionPanel>
+      </q-tab-panel>
+
     </q-tab-panels>
   </div>
 </template>
@@ -317,7 +431,7 @@ interface Step    { number: string; icon: string; title: string; description: st
 const $q    = useQuasar()
 const store = useCmsStore()
 
-type TabKey = 'hero' | 'process' | 'story' | 'values' | 'team-intro'
+type TabKey = 'hero' | 'process' | 'story' | 'values' | 'team-intro' | 'contact'
 const activeTab = ref<TabKey>('hero')
 
 const heroDocId      = ref<string | null>(null)
@@ -325,9 +439,10 @@ const processDocId   = ref<string | null>(null)
 const storyDocId     = ref<string | null>(null)
 const valuesDocId    = ref<string | null>(null)
 const teamIntroDocId = ref<string | null>(null)
+const contactDocId   = ref<string | null>(null)
 
 const saving = reactive<Record<TabKey, boolean>>({
-  'hero': false, 'process': false, 'story': false, 'values': false, 'team-intro': false,
+  'hero': false, 'process': false, 'story': false, 'values': false, 'team-intro': false, 'contact': false,
 })
 
 // ── Forms ─────────────────────────────────────────────────────────────────────
@@ -390,6 +505,30 @@ const teamIntro = reactive({
   description: 'Our team is composed of skilled professionals dedicated to precision and quality. We work with a structured approach to deliver refined, reliable results. Every project is handled with attention to detail and clear communication. Our goal is to provide a seamless experience and exceptional craftsmanship.',
 })
 
+// contact-page
+const contact = reactive({
+  // Hero
+  heroHeading:     'Ready to Transform\nYour Space?',
+  heroSub:         'High-quality enclosures that add comfort, style, and everyday usability.',
+  // Intro
+  introEyebrow:    'Contact Us',
+  introHeading:    "Let's Build\nwith Precision",
+  introParagraphs: [
+    "If you're ready to elevate your outdoor space, our team is prepared to guide you through a structured and professional process.",
+    "Reach out to schedule your private consultation. We'll assess your project, answer your questions, and provide clear direction based on your goals.",
+    "At Alumen Outdoors Structure, every conversation is the first step toward a well-executed result.",
+  ] as string[],
+  // Details
+  phone:        '(941) 526-5425',
+  email:        'sales@skywayaluminum.com',
+  serviceAreas: ['Sarasota', 'Tampa', 'Bradenton', 'Venice', 'North Port'] as string[],
+  hoursWeekday: 'Mon-Fri: 8AM – 6PM',
+  hoursSat:     'Sat: 9AM – 2PM',
+  // Social
+  instagramUrl: 'https://www.instagram.com/alumenoutdoors',
+  facebookUrl:  'https://www.facebook.com/alumenoutdoors',
+})
+
 // ── Hero preview ──────────────────────────────────────────────────────────────
 const heroHeadingHtml = computed(() => hero.heading.replace(/\n/g, '<br>'))
 
@@ -447,8 +586,26 @@ function syncAll() {
   // about-team
   const t = findSection('about-team')
   if (t) {
-    teamIntroDocId.value    = t.id ?? null
-    teamIntro.description   = (t['description'] as string) ?? teamIntro.description
+    teamIntroDocId.value  = t.id ?? null
+    teamIntro.description = (t['description'] as string) ?? teamIntro.description
+  }
+
+  // contact-page
+  const c = findSection('contact-page')
+  if (c) {
+    contactDocId.value      = c.id ?? null
+    contact.heroHeading     = (c['heroHeading']  as string) ?? contact.heroHeading
+    contact.heroSub         = (c['heroSub']      as string) ?? contact.heroSub
+    contact.introEyebrow    = (c['introEyebrow'] as string) ?? contact.introEyebrow
+    contact.introHeading    = (c['introHeading'] as string) ?? contact.introHeading
+    contact.phone           = (c['phone']        as string) ?? contact.phone
+    contact.email           = (c['email']        as string) ?? contact.email
+    contact.hoursWeekday    = (c['hoursWeekday'] as string) ?? contact.hoursWeekday
+    contact.hoursSat        = (c['hoursSat']     as string) ?? contact.hoursSat
+    contact.instagramUrl    = (c['instagramUrl'] as string) ?? contact.instagramUrl
+    contact.facebookUrl     = (c['facebookUrl']  as string) ?? contact.facebookUrl
+    if (Array.isArray(c['introParagraphs'])) contact.introParagraphs.splice(0, contact.introParagraphs.length, ...(c['introParagraphs'] as string[]))
+    if (Array.isArray(c['serviceAreas']))    contact.serviceAreas.splice(0,    contact.serviceAreas.length,    ...(c['serviceAreas']    as string[]))
   }
 }
 
@@ -467,6 +624,21 @@ async function saveSection(tab: TabKey) {
     'story':      { docId: storyDocId,     payload: () => ({ sectionId: 'about-story',  imageLeft: story.imageLeft, imageRight: story.imageRight, paragraphs: [...story.paragraphs] }) },
     'values':     { docId: valuesDocId,    payload: () => ({ sectionId: 'about-values', intro: values.intro, image: values.image, pills: [...values.pills], bullets: [...values.bullets], statement: [...values.statement] }) },
     'team-intro': { docId: teamIntroDocId, payload: () => ({ sectionId: 'about-team',   description: teamIntro.description }) },
+    'contact':    { docId: contactDocId,   payload: () => ({
+      sectionId:       'contact-page',
+      heroHeading:     contact.heroHeading,
+      heroSub:         contact.heroSub,
+      introEyebrow:    contact.introEyebrow,
+      introHeading:    contact.introHeading,
+      introParagraphs: [...contact.introParagraphs],
+      phone:           contact.phone,
+      email:           contact.email,
+      serviceAreas:    [...contact.serviceAreas],
+      hoursWeekday:    contact.hoursWeekday,
+      hoursSat:        contact.hoursSat,
+      instagramUrl:    contact.instagramUrl,
+      facebookUrl:     contact.facebookUrl,
+    }) },
   }
 
   const { docId, payload } = MAP[tab]

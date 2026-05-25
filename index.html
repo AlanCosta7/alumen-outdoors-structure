@@ -37,12 +37,16 @@
     <meta name="geo.position" content="27.3364;-82.5307">
     <meta name="ICBM" content="27.3364, -82.5307">
 
+    <!-- Firebase Storage — preconnect to reduce image latency -->
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
+
     <!-- Google Fonts — preconnect first, then stylesheet (non-render-blocking) -->
+    <!-- Only 3 weights: 400 (body), 600 (semi-bold UI), 800 (headings) — saves ~30 KB vs 6 weights -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" media="print" onload="this.media='all'">
     <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
     </noscript>
 
     <!-- Favicons -->

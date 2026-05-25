@@ -28,6 +28,11 @@
           :aria-label="`View photo ${currentPage * PAGE_SIZE + i + 1} of ${photos.length}`"
           @click="open(currentPage * PAGE_SIZE + i)"
         >
+          <!-- Shimmer enquanto a variante medium carrega -->
+          <div
+            class="img-shimmer"
+            :class="{ 'img-shimmer--done': loadedPhotos[photo] }"
+          />
           <img
             :src="mediumMap[photo] ?? photo"
             :alt="`${serviceTitle} — photo ${currentPage * PAGE_SIZE + i + 1}`"
@@ -35,7 +40,8 @@
             decoding="async"
             width="360"
             height="270"
-            class="gallery__img"
+            :class="['gallery__img', { 'is-loaded': loadedPhotos[photo] }]"
+            @load="onPhotoLoad(photo)"
           />
           <div class="gallery__overlay" aria-hidden="true">
             <q-icon name="search" size="26px" class="gallery__zoom" />
@@ -125,6 +131,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { prefetchVariants, resolveImageVariant } from 'src/composables/cms/useImageVariant'
+
+// Estado reativo de imagens carregadas — keyed pela URL original da foto
+const loadedPhotos = ref<Record<string, boolean>>({})
+
+function onPhotoLoad(photoUrl: string) {
+  loadedPhotos.value = { ...loadedPhotos.value, [photoUrl]: true }
+}
 
 const props = defineProps<{
   photos: string[]
@@ -279,12 +292,18 @@ function nextPhoto() {
   }
 
   &__img {
+    position: relative;
+    z-index: 2; // acima do shimmer (z-index: 1)
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s ease;
     border-radius: 10px;
+    // Fade-in reativo: opacity controlada pelo :class.is-loaded via Vue
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+
+    &.is-loaded { opacity: 1; }
   }
 
   &__overlay {
@@ -297,6 +316,7 @@ function nextPhoto() {
     justify-content: center;
     opacity: 0;
     transition: opacity 0.3s;
+    z-index: 3;
   }
 
   &__zoom { color: $brand-white; }

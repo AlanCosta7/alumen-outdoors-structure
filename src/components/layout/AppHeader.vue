@@ -3,14 +3,17 @@
     <div class="app-header__inner max-content">
       <!-- Logo -->
       <router-link to="/" class="app-header__logo" aria-label="Alumen Outdoors Structure — Home">
-        <img
-          src="/images/logotrans.png"
-          alt="Alumen Outdoors Structure"
-          width="260"
-          height="52"
-          loading="eager"
-          fetchpriority="high"
-        />
+        <picture>
+          <source srcset="/images/logotrans.webp" type="image/webp">
+          <img
+            src="/images/logotrans.png"
+            alt="Alumen Outdoors Structure"
+            width="133"
+            height="52"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </picture>
       </router-link>
 
       <!-- Nav desktop -->
@@ -62,7 +65,7 @@
         class="app-header__burger lt-md"
         icon="menu"
         aria-label="Open navigation menu"
-        aria-expanded="drawerOpen"
+        :aria-expanded="drawerOpen"
         @click="drawerOpen = true"
       />
     </div>
@@ -79,7 +82,10 @@
     aria-label="Mobile navigation"
   >
     <div class="mobile-nav__header">
-      <img src="/images/logo.png" alt="Alumen Outdoors Structure" width="140" height="46" />
+      <picture>
+        <source srcset="/images/logo.webp" type="image/webp">
+        <img src="/images/logo.png" alt="Alumen Outdoors Structure" width="140" height="46" />
+      </picture>
       <q-btn flat round dense icon="close" aria-label="Close menu" @click="drawerOpen = false" />
     </div>
 
@@ -141,12 +147,21 @@ const services = [
   { slug: 'screen-repair-individual-panels',    title: 'Screen Repair (Individual Panels)' },
 ]
 
+// Throttled to one rAF per scroll event — prevents running 60 × per second
+let _rafId: number | null = null
 function onScroll() {
-  isScrolled.value = window.scrollY > 20
+  if (_rafId !== null) return
+  _rafId = requestAnimationFrame(() => {
+    isScrolled.value = window.scrollY > 20
+    _rafId = null
+  })
 }
 
 onMounted(() => window.addEventListener('scroll', onScroll, { passive: true }))
-onUnmounted(() => window.removeEventListener('scroll', onScroll))
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+  if (_rafId !== null) cancelAnimationFrame(_rafId)
+})
 </script>
 
 <style scoped lang="scss">
@@ -175,7 +190,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     align-items: center;
     flex-shrink: 0;
 
-    img { height: auto; width: 240px; }
+    img { height: 52px; width: auto; max-width: none; }
 
     &:focus-visible {
       outline: 2px solid $brand-green;

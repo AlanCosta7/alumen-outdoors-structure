@@ -12,6 +12,7 @@ const MENU = [
   { label: 'Equipe',            link: 'admin-team',      icon: 'people' },
   // Dev
   { label: 'Seed Firebase',     link: 'admin-seed',      icon: 'cloud_upload' },
+  { label: 'Otimização de Imagens', link: 'admin-media', icon: 'image' },
 ]
 
 const routes: RouteRecordRaw[] = [
@@ -49,6 +50,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'team',     name: 'admin-team',     component: () => import('pages/admin/TeamAdmin.vue') },
       // Dev
       { path: 'seed',     name: 'admin-seed',     component: () => import('pages/admin/SeedAdmin.vue') },
+      { path: 'media',    name: 'admin-media',    component: () => import('pages/admin/MediaAdmin.vue') },
     ],
   },
 

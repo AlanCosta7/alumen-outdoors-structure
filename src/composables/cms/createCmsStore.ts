@@ -62,13 +62,33 @@ export function createCmsStore(options: CreateStoreOptions = {}) {
     const _subs: Array<() => void> = []
 
     // ---- Hydration
+    // Critical collections render above-the-fold content and subscribe
+    // immediately.  Non-critical ones are staggered (50ms apart) to avoid
+    // 7 simultaneous onSnapshot callbacks saturating the main thread.
+    const CRITICAL = new Set(['config', 'services'])
+
     function hydrate() {
-      for (const col of collections) {
+      const critical    = collections.filter(c => CRITICAL.has(c))
+      const nonCritical = collections.filter(c => !CRITICAL.has(c))
+
+      // Subscribe critical collections right away
+      for (const col of critical) {
         const unsub = crud.subscribeCollection(col, lista => {
           data[col] = singletonSet.has(col) ? (lista[0] ?? null) : lista
         })
         _subs.push(unsub)
       }
+
+      // Stagger non-critical ones to spread the onSnapshot burst
+      nonCritical.forEach((col, i) => {
+        const timer = setTimeout(() => {
+          const unsub = crud.subscribeCollection(col, lista => {
+            data[col] = singletonSet.has(col) ? (lista[0] ?? null) : lista
+          })
+          _subs.push(unsub)
+        }, (i + 1) * 60) // 60ms, 120ms, 180ms, 240ms, …
+        _subs.push(() => clearTimeout(timer))
+      })
     }
 
     function unsubscribeAll() {
@@ -121,9 +141,29 @@ export function createCmsStore(options: CreateStoreOptions = {}) {
     }
 
     async function getImg(opts?: { path?: string; maxResults?: number }) {
-      const items = await storage.listFiles(opts)
-      listaGaleria.value = items.map(i => i.url)
-      return listaGaleria.value
+      const started = performance.now()
+      console.info('[CmsStore] phase: getImg started', {
+        at: new Date().toISOString(),
+        opts: opts ?? null,
+        currentItems: listaGaleria.value.length,
+      })
+      try {
+        const items = await storage.listFiles(opts)
+        listaGaleria.value = items.map(i => i.url)
+        console.info('[CmsStore] phase: getImg finished', {
+          at: new Date().toISOString(),
+          returned: listaGaleria.value.length,
+          ms: Math.round(performance.now() - started),
+        })
+        return listaGaleria.value
+      } catch (e) {
+        console.warn('[CmsStore] phase: getImg failed', {
+          at: new Date().toISOString(),
+          error: (e as Error).message,
+          ms: Math.round(performance.now() - started),
+        })
+        throw e
+      }
     }
 
     function deletImg(idOrPath: string) {

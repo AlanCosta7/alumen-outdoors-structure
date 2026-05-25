@@ -14,6 +14,8 @@
       aria-hidden="true"
       fetchpriority="high"
       decoding="async"
+      width="1920"
+      height="1080"
       class="hero__bg-img"
     />
 
@@ -80,6 +82,9 @@ const headingHtml = computed(() =>
     object-position: center;
     display: block;
     z-index: 0;
+    // Mantém a textura na GPU quando o elemento sai da viewport ao rolar —
+    // sem isso alguns browsers descartam a textura e a imagem some ao voltar ao topo.
+    will-change: transform;
   }
 
   &__overlay {
